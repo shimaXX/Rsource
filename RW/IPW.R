@@ -1,6 +1,8 @@
+#install.packages("Matching")
 library(Matching)
-data(lalonde)
+data(lalonde) #職業訓練の受講と訓練後の年収、その他個人の属性データ
 
+# 訓練を受けそうかどうかの推定を属性を使ってロジスティック回帰で推定
 logi <- glm(treat ~age + educ + black + hisp + married + nodegr +
               re74 + re75 + u74 + u75, family=binomial, data=lalonde)
 
@@ -20,3 +22,9 @@ library(survey)
 psw <- svydesign(ids = ~1, weights = iestp, data= lalonde)
 ipwsu <- svyglm(re78 ~ treat, design = psw)
 summary(ipwsu)
+
+
+# デモ用のコード
+mout<-Match(Y=lalonde$re78, Tr=lalonde$treat, X=logi$fitted)
+head(mout$index.treated)
+head(mout$index.control)
