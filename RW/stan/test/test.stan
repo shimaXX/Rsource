@@ -1,25 +1,23 @@
-# kubo book chapter 10
 data {
-	int<lower=0> N; #sample size
-	int<lower=0> Y[N]; # response variable
+	int<lower=0> N;
+	int<lower=0> n[N]; // total beetle number
+	int<lower=0> y[N]; // dead beetle number
+	real x[N]; // dead beetle number
 }
 parameters {
+	real alpha;
 	real beta;
-	real r[N];
-	real<lower=0> sigma;
 }
-transformed parameters{
+transformed parameters {
 	real q[N];
-
-	for(i in 1:N){
-		q[i]<-inv_logit(beta + r[i]); # survival ratio
-	}
+	real m;
+	m <- mean(x);
+	for (i in 1:N)
+		q[i] <- inv_logit(alpha+beta*(x[i]-m));
 }
 model {
-	for(i in 1:N){
-		Y[i]~binomial(8, q[i]);
-	}
-	beta~normal(0,100); # non-informative prior distribution
-	r~normal(0, sigma); # hierarchical prior distribution
-	sigma~uniform(0, 1.0e+4); # non-infomative prior distribution
+	for (i in 1:N)
+		y[i]~binomial(n[i],q[i]);
+	alpha~normal(0,1.0e+4);
+	beta~normal(0,1.0e+4);
 }
